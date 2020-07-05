@@ -1,0 +1,3 @@
+batch_size: 16
+input_size: 640
+dataset_path: './widerface_train.tfrecord'
