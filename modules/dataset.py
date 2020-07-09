@@ -1,8 +1,10 @@
 import tensorflow as tf
 
 def resize(img, bboxes, h_dst, w_dst):
+    """resize without fixed aspect ratio"""
+    # resize image
     img_dst = tf.image.resize(img, [h_dst, w_dst], antialias=True)
-    
+    # refine bboxes
     w_src = tf.cast(tf.shape(img)[1], tf.float32)
     h_src = tf.cast(tf.shape(img)[0], tf.float32)
     scale_w = w_dst / w_src
@@ -11,15 +13,17 @@ def resize(img, bboxes, h_dst, w_dst):
     return img_dst, bboxes_dst
 
 def preprocess(img, bboxes, img_dims):
+    """pre-process for data pipeline"""
     img, bboxes = resize(img, bboxes, h_dst=img_dims[0], w_dst=img_dims[1])
     return img, bboxes
 
 def _parse_tfrecord(img_dims):
+    """create parser(mapping) for tf.dataset"""
     def parse_tfrecord(tfrecord):
         feature = {
-            'image/name':   tf.io.FixedLenFeature([], tf.string), #_bytes_feature(name_str),
-            'image/encode': tf.io.FixedLenFeature([], tf.string), #_bytes_feature(img_str),
-            'label/bboxes': tf.io.FixedLenFeature([], tf.string), #_bytes_feature(bboxes_str),
+            'image/name':   tf.io.FixedLenFeature([], tf.string),
+            'image/encode': tf.io.FixedLenFeature([], tf.string),
+            'label/bboxes': tf.io.FixedLenFeature([], tf.string),
         }
         example = tf.io.parse_single_example(tfrecord, feature)
         img = tf.image.decode_jpeg(example['image/encode'], channels=3)
