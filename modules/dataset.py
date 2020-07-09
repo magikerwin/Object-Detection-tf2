@@ -1,20 +1,35 @@
 import tensorflow as tf
 
-def _parse_tfrecord(img_dim):
+def resize(img, bboxes, h_dst, w_dst):
+    img_dst = tf.image.resize(img, [h_dst, w_dst], antialias=True)
+    
+    w_src = tf.cast(tf.shape(img)[1], tf.float32)
+    h_src = tf.cast(tf.shape(img)[0], tf.float32)
+    scale_w = w_dst / w_src
+    scale_h = h_dst / h_src
+    bboxes_dst = bboxes * [scale_w, scale_h, scale_w, scale_h]
+    return img_dst, bboxes_dst
+
+def preprocess(img, bboxes, img_dims):
+    img, bboxes = resize(img, bboxes, h_dst=img_dims[0], w_dst=img_dims[1])
+    return img, bboxes
+
+def _parse_tfrecord(img_dims):
     def parse_tfrecord(tfrecord):
         feature = {
             'image/name':   tf.io.FixedLenFeature([], tf.string), #_bytes_feature(name_str),
             'image/encode': tf.io.FixedLenFeature([], tf.string), #_bytes_feature(img_str),
             'label/bboxes': tf.io.FixedLenFeature([], tf.string), #_bytes_feature(bboxes_str),
         }
-
         example = tf.io.parse_single_example(tfrecord, feature)
         img = tf.image.decode_jpeg(example['image/encode'], channels=3)
-        labels = tf.io.decode_raw(example['label/bboxes'], tf.float32)
-        return img, labels
+        bboxes = tf.io.decode_raw(example['label/bboxes'], tf.float32)
+        bboxes = tf.reshape(bboxes, [-1, 4])
+        bboxes = tf.pad(bboxes, [[0, 100], [0, 0]], "CONSTANT")[:100, :]
+        return preprocess(img, bboxes, img_dims)
     return parse_tfrecord
 
-def load_tfrecord_dataset(path_tfrecord, img_dim=100, batch_size=1,
+def load_tfrecord_dataset(path_tfrecord, img_dims=[100, 100], batch_size=16,
                           shuffle=True, buffer_size=10240):
     """load dataset from tfrecord"""
     
@@ -23,7 +38,7 @@ def load_tfrecord_dataset(path_tfrecord, img_dim=100, batch_size=1,
     if shuffle:
         raw_dataset = raw_dataset.shuffle(buffer_size=buffer_size)
 
-    parser = _parse_tfrecord(img_dim)
+    parser = _parse_tfrecord(img_dims)
 
     dataset = raw_dataset.map(parser, num_parallel_calls=tf.data.experimental.AUTOTUNE)
     dataset = dataset.batch(batch_size, drop_remainder=True)

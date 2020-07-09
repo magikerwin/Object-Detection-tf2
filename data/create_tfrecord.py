@@ -58,8 +58,12 @@ def loader(dataset_path, mode='valid'):
                 if counter == 0:
                     counter = int(line) 
                 else:
-                    bboxes = line.split(' ')[:4] # x,y,h,w
-                    info['bboxes'].append(bboxes)
+                    x1, y1, w, h = line.split(' ')[:4] # x1, y1, w, h
+                    x1 = int(x1)
+                    y1 = int(y1)
+                    x2 = x1 + int(w)
+                    y2 = y1 + int(h)
+                    info['bboxes'].append([x1, y1, x2, y2])
                     counter -= 1
                     if counter == 0:
                         isPath = True
@@ -89,14 +93,14 @@ def serialize_example(info):
     # Create a dictionary mapping the feature name to the tf.Example-compatible
     # data type.
     with open(info['path'], 'rb') as f:
-        img_str = f.read()
-    name_str = str.encode(info['name'])
-    bboxes_str = np.array(info['bboxes'], np.float32).tostring()
-
+        img_bytes = f.read()
+    name_bytes = str.encode(info['name'])
+    bboxes_bytes = np.array(info['bboxes'], np.float32).tobytes()
+    
     feature = {
-        'image/name':   _bytes_feature(name_str),
-        'image/encode': _bytes_feature(img_str),
-        'label/bboxes': _bytes_feature(bboxes_str),
+        'image/name':   _bytes_feature(name_bytes),
+        'image/encode': _bytes_feature(img_bytes),
+        'label/bboxes': _bytes_feature(bboxes_bytes),
     }
     # Create a Features message using tf.train.Example.
     example_proto = tf.train.Example(features=tf.train.Features(feature=feature))
