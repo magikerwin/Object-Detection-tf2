@@ -1,4 +1,5 @@
 import tensorflow as tf
+from modules.augment import flip_horizontal
 
 def resize(img, bboxes, h_dst, w_dst):
     """resize without fixed aspect ratio"""
@@ -43,6 +44,7 @@ def preprocess(img, bboxes, img_dims):
     """pre-process for data pipeline"""
     # img, bboxes = resize(img, bboxes, h_dst=img_dims[0], w_dst=img_dims[1])
     img, bboxes = resize_with_fixed_AR(img, bboxes, h_dst=img_dims[0], w_dst=img_dims[1])
+    img, bboxes = flip_horizontal(img, bboxes)
     return img, bboxes
 
 def _parse_tfrecord(img_dims):
