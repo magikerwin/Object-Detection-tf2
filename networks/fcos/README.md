@@ -1,2 +1,7 @@
 # FCOS-tf2
-FCOS (Fully Convolutional One-Stage Object Detection, 2019) implemented in Tensorflow 2.0+. This is an unofficial implementation.
+
+FCOS implemented in Tensorflow 2.0+. This is an unofficial implementation.
+
+Original Paper: ["FCOS: Fully Convolutional One-Stage Object Detection"](https://arxiv.org/abs/1904.01355)
+
+coming soon...
