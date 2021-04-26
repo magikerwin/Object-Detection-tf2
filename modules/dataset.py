@@ -63,7 +63,7 @@ def _parse_tfrecord(img_dims):
         return preprocess(img, bboxes, img_dims)
     return parse_tfrecord
 
-def load_tfrecord_dataset(path_tfrecord, img_dims=[100, 100], batch_size=16,
+def load_tfrecord_dataset(path_tfrecord, img_dims=[224, 224], batch_size=16,
                           shuffle=True, buffer_size=10240):
     """load dataset from tfrecord"""    
     raw_dataset = tf.data.TFRecordDataset(path_tfrecord)
