@@ -3,7 +3,7 @@ This repository consists of classic object detection algorithms, which are all u
 
 ### ToDo List
 - [ ] [FCOS](https://github.com/magikerwin1993/Object-Detection-tf2/tree/master/networks/fcos)
-- [ ] CornerNet
+- [ ] [CornerNet](https://github.com/magikerwin1993/Object-Detection-tf2/tree/master/networks/cornernet)
 
 # Requirements
 Python 3.8+
