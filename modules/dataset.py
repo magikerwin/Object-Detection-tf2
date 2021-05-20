@@ -63,8 +63,7 @@ def _parse_tfrecord(img_dims):
         return preprocess(img, bboxes, img_dims)
     return parse_tfrecord
 
-def load_tfrecord_dataset(path_tfrecord, img_dims=[224, 224], batch_size=16,
-                          shuffle=True, buffer_size=10240):
+def load_tfrecord_dataset(path_tfrecord, img_dims, batch_size, shuffle, buffer_size):
     """load dataset from tfrecord"""    
     raw_dataset = tf.data.TFRecordDataset(path_tfrecord)
     raw_dataset = raw_dataset.repeat()
@@ -75,7 +74,6 @@ def load_tfrecord_dataset(path_tfrecord, img_dims=[224, 224], batch_size=16,
 
     dataset = raw_dataset.map(parser, num_parallel_calls=tf.data.experimental.AUTOTUNE)
     dataset = dataset.batch(batch_size, drop_remainder=True)
-    dataset = dataset.prefetch(
-        buffer_size=tf.data.experimental.AUTOTUNE)
+    dataset = dataset.prefetch(buffer_size=tf.data.experimental.AUTOTUNE)
 
     return dataset
