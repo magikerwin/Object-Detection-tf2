@@ -16,5 +16,6 @@ def load_dataset(cfg, shuffle=True):
         img_dims=cfg['input_size'],
         batch_size=cfg['batch_size'],
         shuffle=shuffle,
-        buffer_size=cfg['batch_size']*10)
+        buffer_size=cfg['batch_size']*10,
+        max_num_objects=cfg['max_num_objects'])
     return dataset

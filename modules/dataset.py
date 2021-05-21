@@ -47,7 +47,7 @@ def preprocess(img, bboxes, img_dims):
     img, bboxes = flip_horizontal(img, bboxes)
     return img, bboxes
 
-def _parse_tfrecord(img_dims):
+def _parse_tfrecord(img_dims, max_num_objects):
     """create parser(mapping) for tf.dataset"""
     def parse_tfrecord(tfrecord):
         feature = {
@@ -59,18 +59,21 @@ def _parse_tfrecord(img_dims):
         img = tf.image.decode_jpeg(example['image/encode'], channels=3)
         bboxes = tf.io.decode_raw(example['label/bboxes'], tf.float32)
         bboxes = tf.reshape(bboxes, [-1, 4])
-        bboxes = tf.pad(bboxes, [[0, 100], [0, 0]], "CONSTANT")[:100, :]
-        return preprocess(img, bboxes, img_dims)
+        img, bboxes = preprocess(img, bboxes, img_dims)
+
+        # only consider a limited number of objects
+        bboxes = tf.pad(bboxes, [[0, max_num_objects], [0, 0]], "CONSTANT", constant_values=-1)[:max_num_objects, :]
+        return img, bboxes
     return parse_tfrecord
 
-def load_tfrecord_dataset(path_tfrecord, img_dims, batch_size, shuffle, buffer_size):
-    """load dataset from tfrecord"""    
+def load_tfrecord_dataset(path_tfrecord, img_dims, batch_size, shuffle, buffer_size, max_num_objects):
+    """load dataset from tfrecord"""
     raw_dataset = tf.data.TFRecordDataset(path_tfrecord)
     raw_dataset = raw_dataset.repeat()
     if shuffle:
         raw_dataset = raw_dataset.shuffle(buffer_size=buffer_size)
 
-    parser = _parse_tfrecord(img_dims)
+    parser = _parse_tfrecord(img_dims, max_num_objects)
 
     dataset = raw_dataset.map(parser, num_parallel_calls=tf.data.experimental.AUTOTUNE)
     dataset = dataset.batch(batch_size, drop_remainder=True)
