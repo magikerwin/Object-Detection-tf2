@@ -1,4 +1,4 @@
-from networks.common import *
+from algorithms.common.networks import *
 
 def getRetinaNetModel(input_shape, training=False, iou_th=.4, score_th=.02, name='FCOSModel'):
     """FCOS detector"""
