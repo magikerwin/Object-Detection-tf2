@@ -13,7 +13,7 @@ def load_dataset(cfg, shuffle=True):
     logging.info('load dataset from {}'.format(cfg['dataset_path']))
     dataset = load_tfrecord_dataset(
         path_tfrecord=cfg['dataset_path'],
-        img_dims=cfg['input_size'],
+        img_dims=cfg['input_shape'],
         batch_size=cfg['batch_size'],
         shuffle=shuffle,
         buffer_size=cfg['batch_size']*10,

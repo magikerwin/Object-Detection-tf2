@@ -1,4 +1,14 @@
 batch_size: 16
-input_size: [224, 224]
-dataset_path: './widerface_train.tfrecord'
+input_shape: [224, 224, 3]
 max_num_objects: 100
+dataset_path: './widerface_train.tfrecord'
+
+# anchors setting
+steps: [8, 16, 32]
+anchor_sizes: [
+  [4, 4], [8, 8], 
+  [16, 16], [32, 32], 
+  [64, 64], [128, 128]
+]
+match_thresh: 0.45
+ignore_thresh: 0.3
