@@ -38,20 +38,19 @@ def FPN(inputs, wd):
     
     return output1, output2, output3
 
-def BBoxHead(x, wd):
+def BBoxHead(x, num_anchors, wd):
     out = ConvBlock(x=x, f=32, k=3, s=1, wd=wd)
     out = ConvBlock(x=out, f=32, k=3, s=1, wd=wd)
-    out = tf.keras.layers.Conv2D(filters=4, kernel_size=1, strides=1) (out)
+    out = tf.keras.layers.Conv2D(filters=num_anchors*4, kernel_size=1, strides=1) (out)
     return out
 
-def ClassHead(x, wd):
+def ClassHead(x, num_anchors, num_classes, wd):
     out = ConvBlock(x=x, f=32, k=3, s=1, wd=wd)
     out = ConvBlock(x=out, f=32, k=3, s=1, wd=wd)
-    out = tf.keras.layers.Conv2D(filters=2, kernel_size=1, strides=1) (out)
-    out = tf.keras.layers.Softmax(axis=-1)(out)
+    out = tf.keras.layers.Conv2D(filters=num_anchors*num_classes, kernel_size=1, strides=1, activation='sigmoid') (out)
     return out
 
-def OutputHead(x, wd):
-    bbox_pred = BBoxHead(x, wd)
-    class_pred = ClassHead(x, wd)
+def OutputHead(x, num_anchors, num_classes, wd):
+    bbox_pred = BBoxHead(x, num_anchors, wd)
+    class_pred = ClassHead(x, num_anchors, num_classes, wd)
     return tf.keras.layers.concatenate([bbox_pred, class_pred], axis=-1)

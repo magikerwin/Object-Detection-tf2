@@ -1,8 +1,7 @@
 # general setting
 batch_size: 16
 input_shape: [224, 224, 3]
-
-# training dataset
+num_classes: 1
 max_num_objects: 100
 dataset_path: './widerface_train.tfrecord'
 
