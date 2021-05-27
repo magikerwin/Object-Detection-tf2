@@ -51,6 +51,13 @@ def ClassHead(x, num_anchors, num_classes, wd):
     return out
 
 def OutputHead(x, num_anchors, num_classes, wd):
-    bbox_pred = BBoxHead(x, num_anchors, wd)
+    num_batchs, h, w, c = x.get_shape()
     class_pred = ClassHead(x, num_anchors, num_classes, wd)
-    return tf.keras.layers.concatenate([bbox_pred, class_pred], axis=-1)
+    bbox_pred = BBoxHead(x, num_anchors, wd)
+
+    # arrange feature maps according to anchros
+    class_pred = tf.keras.layers.Reshape([h, w, num_anchors, num_classes]) (class_pred)
+    bbox_pred = tf.keras.layers.Reshape([h, w, num_anchors, 4]) (bbox_pred)
+    output = tf.keras.layers.concatenate([class_pred, bbox_pred], axis=-1)
+
+    return output
