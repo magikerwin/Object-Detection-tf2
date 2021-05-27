@@ -8,8 +8,8 @@ import tensorflow as tf
 logging.set_verbosity(logging.DEBUG)
 logging.info('TF Version:', tf.__version__)
 
-# flags.DEFINE_string('dataset_path', './data/widerface/train', 'path of dataset')
-flags.DEFINE_string('dataset_path', 'C:\\Users\\qwerz\\working\\2--Dataset\\WiderFace\\drive-download-20190907T020223Z-001', 'path of dataset')
+flags.DEFINE_string('mode', 'train', 'train or valid')
+flags.DEFINE_string('dataset_path', './tmp', 'path of dataset')
 flags.DEFINE_string('tfrecord_path', './widerface_train.tfrecord', 'path of output tfrecord')
 FLAGS = flags.FLAGS
 
@@ -28,11 +28,11 @@ def loader(dataset_path, mode='valid'):
     """Convert txt to infos"""
     
     if mode == 'valid':
-        txt_path    = os.path.join(dataset_path, 'wider_face_val_bbx_gt_toy.txt')
-        images_path = os.path.join(dataset_path, 'WIDER_val\images')
+        txt_path    = os.path.join(dataset_path, 'wider_face_split/wider_face_val_bbx_gt.txt')
+        images_path = os.path.join(dataset_path, 'WIDER_val/images')
     elif mode == 'train':
-        txt_path    = os.path.join(dataset_path, 'wider_face_train_bbx_gt.txt')
-        images_path = os.path.join(dataset_path, 'WIDER_train\images')
+        txt_path    = os.path.join(dataset_path, 'wider_face_split/wider_face_train_bbx_gt.txt')
+        images_path = os.path.join(dataset_path, 'WIDER_train/images')
     else:
         logging.info('Please chose the right mode. [train/valid] Exit ...')
         exit()
@@ -55,7 +55,10 @@ def loader(dataset_path, mode='valid'):
                 info['bboxes'] = []
                 isPath = False
             else:
-                if counter == 0:
+                if line == '0 0 0 0 0 0 0 0 0 0': # invalid infomation
+                    isPath = True
+                    counter = 0
+                elif counter == 0:
                     counter = int(line) 
                 else:
                     x1, y1, w, h = line.split(' ')[:4] # x1, y1, w, h
@@ -119,7 +122,7 @@ def main(argv):
     
     # get infos from dataset ...
     logging.info(f'Loading ... {FLAGS.dataset_path}')
-    infos = loader(FLAGS.dataset_path, mode='valid')
+    infos = loader(dataset_path=FLAGS.dataset_path, mode=FLAGS.mode)
 
     
     # write sample to tfrecord file ...
