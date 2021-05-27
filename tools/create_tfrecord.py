@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
-from tqdm import tqdm
+from rich.progress import track
 from absl import app, flags, logging
 import tensorflow as tf
 
@@ -112,7 +112,7 @@ def serialize_example(info):
 def createTFRecord(infos, tfrecord_path):
     """Writing infos to TFRecord file"""
     with tf.io.TFRecordWriter(tfrecord_path) as writer:
-        for info in tqdm(infos):
+        for info in track(infos):
             example = serialize_example(info)
             writer.write(example)
 

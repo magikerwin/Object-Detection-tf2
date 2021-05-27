@@ -2,3 +2,5 @@ tensorflow>=2.0
 numpy
 pyyaml
 opencv-python
+pandas
+rich
