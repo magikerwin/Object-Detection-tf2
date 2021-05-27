@@ -84,7 +84,7 @@ def get_encode_func(input_size, priors, match_thresh, ignore_thresh):
         return tf.concat([conf_t[..., tf.newaxis], loc_t], axis=-1)
     return encode
 
-def decode(labels, priors):
+def decode(features, priors):
     flattened_priors = tf.concat([tf.reshape(p, [-1, 4]) for p in priors], axis=0)
-    bboxes = _decode_bbox(labels[:, 1:], flattened_priors)
-    return tf.concat([labels[:, 0:1], bboxes], axis=-1)
+    bboxes = _decode_bbox(features[:, 1:], flattened_priors)
+    return tf.concat([features[:, 0:1], bboxes], axis=-1)
